@@ -3,13 +3,12 @@ import * as exec from '@actions/exec';
 
 export async function cleanup() {
   try {
+    core.info('Stopping Couchbase...');
+
     await exec.exec('docker', [
       'stop',
       'couchbasefakeit'
-    ], {
-      silent: true,
-      ignoreReturnCode: true
-    });
+    ]);
   } catch (e) {
     core.setFailed(e.message);
   }

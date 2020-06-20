@@ -1336,13 +1336,11 @@ const exec = __importStar(__webpack_require__(986));
 function cleanup() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            core.info('Stopping Couchbase...');
             yield exec.exec('docker', [
                 'stop',
                 'couchbasefakeit'
-            ], {
-                silent: true,
-                ignoreReturnCode: true
-            });
+            ]);
         }
         catch (e) {
             core.setFailed(e.message);

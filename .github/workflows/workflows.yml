@@ -17,4 +17,11 @@ jobs:
         uses: ./
         with:
           couchbase-version: enterprise-6.5.0
+      - name: Run SDK Doctor
+        uses: docker://couchbase/sdk-doctor
+        with:
+          entrypoint: /sdk-doctor/sdk-doctor-linux
+          args: diagnose couchbase://host.docker.internal/test
+
+
 
