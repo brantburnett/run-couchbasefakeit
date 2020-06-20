@@ -416,11 +416,17 @@ exports.run = void 0;
 const core = __importStar(__webpack_require__(470));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
-        let version = core.getInput('couchbase-version');
-        console.log(`Version: ${version}`);
+        try {
+            let version = core.getInput('couchbase-version');
+            console.log(`Version: ${version}`);
+        }
+        catch (e) {
+            core.setFailed(e.message);
+        }
     });
 }
 exports.run = run;
+run();
 
 
 /***/ }),
