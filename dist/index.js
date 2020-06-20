@@ -1333,30 +1333,52 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.run = void 0;
 const core = __importStar(__webpack_require__(470));
 const exec = __importStar(__webpack_require__(986));
+const fs = __importStar(__webpack_require__(747));
+function delay(timeoutMs) {
+    return new Promise(resolve => {
+        setTimeout(resolve, timeoutMs);
+    });
+}
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const registry = core.getInput('couchbase-registry');
             const tag = core.getInput('couchbase-version');
             const image = `${registry}:${tag}`;
-            console.log(`Launching Couchbase using ${image}`);
-            let command = 'docker run -d --name couchbasefakeit';
-            command += ' -p 8091-8096:8091-8096 -p 11210:11210';
-            command += image;
-            console.log(`Command: ${command}`);
+            core.info(`Launching Couchbase using ${image}`);
+            const nodestatusDir = yield fs.promises.mkdtemp('/tmp/');
             const returnCode = yield exec.exec('docker', [
                 'run',
                 '-d', '--rm',
+                '--name', 'couchbasefakeit',
                 '-p', '8091-8096:8091-8096',
                 '-p', '11210:11210',
+                '-v', `${process.cwd()}/example:/startup`,
+                '-v', `${nodestatusDir}:/nodestatus`,
                 image
             ]);
             if (returnCode !== 0) {
-                core.setFailed(`Error: ${returnCode}`);
+                return;
             }
-            yield new Promise((resolve) => {
-                setTimeout(() => resolve(), 30000);
-            });
+            // Wait for the node initialized file
+            core.info('Waiting for initialization...');
+            let initialized = false;
+            for (let attempt = 0; attempt < 60; attempt++) {
+                yield delay(1000);
+                if (fs.existsSync(`${nodestatusDir}/initialized`)) {
+                    initialized = true;
+                    break;
+                }
+            }
+            if (!initialized) {
+                core.setFailed('Timeout during initialization');
+            }
+            // Print logs
+            yield exec.exec('docker', [
+                'logs',
+                'couchbasefakeit'
+            ]);
+            // Shut down the docker container
             yield exec.exec('docker', [
                 'stop',
                 'couchbasefakeit'

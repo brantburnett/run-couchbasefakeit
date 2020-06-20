@@ -1,5 +1,12 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
+import * as fs from 'fs';
+
+function delay(timeoutMs: number) {
+  return new Promise(resolve => {
+    setTimeout(resolve, timeoutMs);
+  });
+}
 
 export async function run() {
   try {
@@ -8,29 +15,49 @@ export async function run() {
 
     const image: string = `${registry}:${tag}`;
 
-    console.log(`Launching Couchbase using ${image}`);
+    core.info(`Launching Couchbase using ${image}`);
 
-    let command = 'docker run -d --name couchbasefakeit';
-    command += ' -p 8091-8096:8091-8096 -p 11210:11210'
-    command += image;
-
-    console.log(`Command: ${command}`);
+    const nodestatusDir = await fs.promises.mkdtemp('/tmp/');
 
     const returnCode = await exec.exec('docker', [
       'run',
       '-d', '--rm',
+      '--name', 'couchbasefakeit',
       '-p', '8091-8096:8091-8096',
       '-p', '11210:11210',
+      '-v', `${process.cwd()}/example:/startup`,
+      '-v', `${nodestatusDir}:/nodestatus`,
       image
     ]);
 
     if (returnCode !== 0) {
-      core.setFailed(`Error: ${returnCode}`);
+      return;
     }
 
-    await new Promise((resolve) => {
-      setTimeout(() => resolve(), 30000);
-    });
+    // Wait for the node initialized file
+    core.info('Waiting for initialization...');
+
+    let initialized = false;
+    for (let attempt=0; attempt<60; attempt++) {
+      await delay(1000);
+
+      if (fs.existsSync(`${nodestatusDir}/initialized`)) {
+        initialized = true;
+        break;
+      }
+    }
+
+    if (!initialized) {
+      core.setFailed('Timeout during initialization');
+    }
+
+    // Print logs
+    await exec.exec('docker', [
+      'logs',
+      'couchbasefakeit'
+    ]);
+
+    // Shut down the docker container
 
     await exec.exec('docker', [
       'stop',
