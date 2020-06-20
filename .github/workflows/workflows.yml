@@ -1,0 +1,20 @@
+name: Main workflow
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - releases/*
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Run CouchbaseFakeIt
+        uses: ./
+        with:
+          couchbase-version: enterprise-6.5.0
+
