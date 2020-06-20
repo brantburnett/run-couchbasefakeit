@@ -49,18 +49,13 @@ export async function run() {
 
     if (!initialized) {
       core.setFailed('Timeout during initialization');
+    } else {
+      core.info('CouchbaseFakeIt initialized.');
     }
 
     // Print logs
     await exec.exec('docker', [
       'logs',
-      'couchbasefakeit'
-    ]);
-
-    // Shut down the docker container
-
-    await exec.exec('docker', [
-      'stop',
       'couchbasefakeit'
     ]);
   } catch (e) {

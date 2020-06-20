@@ -34,7 +34,7 @@ module.exports =
 /******/ 	// the startup function
 /******/ 	function startup() {
 /******/ 		// Load entry module and return exports
-/******/ 		return __webpack_require__(590);
+/******/ 		return __webpack_require__(579);
 /******/ 	};
 /******/
 /******/ 	// run startup
@@ -1296,7 +1296,7 @@ exports.getState = getState;
 
 /***/ }),
 
-/***/ 590:
+/***/ 579:
 /***/ (function(__unusedmodule, exports, __webpack_require__) {
 
 "use strict";
@@ -1330,65 +1330,27 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.run = void 0;
+exports.cleanup = void 0;
 const core = __importStar(__webpack_require__(470));
 const exec = __importStar(__webpack_require__(986));
-const fs = __importStar(__webpack_require__(747));
-function delay(timeoutMs) {
-    return new Promise(resolve => {
-        setTimeout(resolve, timeoutMs);
-    });
-}
-function run() {
+function cleanup() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const registry = core.getInput('couchbase-registry');
-            const tag = core.getInput('couchbase-version');
-            const image = `${registry}:${tag}`;
-            core.info(`Launching Couchbase using ${image}`);
-            const nodestatusDir = yield fs.promises.mkdtemp('/tmp/');
-            const returnCode = yield exec.exec('docker', [
-                'run',
-                '-d', '--rm',
-                '--name', 'couchbasefakeit',
-                '-p', '8091-8096:8091-8096',
-                '-p', '11210:11210',
-                '-v', `${process.cwd()}/example:/startup`,
-                '-v', `${nodestatusDir}:/nodestatus`,
-                image
-            ]);
-            if (returnCode !== 0) {
-                return;
-            }
-            // Wait for the node initialized file
-            core.info('Waiting for initialization...');
-            let initialized = false;
-            for (let attempt = 0; attempt < 60; attempt++) {
-                yield delay(1000);
-                if (fs.existsSync(`${nodestatusDir}/initialized`)) {
-                    initialized = true;
-                    break;
-                }
-            }
-            if (!initialized) {
-                core.setFailed('Timeout during initialization');
-            }
-            else {
-                core.info('CouchbaseFakeIt initialized.');
-            }
-            // Print logs
             yield exec.exec('docker', [
-                'logs',
+                'stop',
                 'couchbasefakeit'
-            ]);
+            ], {
+                silent: true,
+                ignoreReturnCode: true
+            });
         }
         catch (e) {
             core.setFailed(e.message);
         }
     });
 }
-exports.run = run;
-run();
+exports.cleanup = cleanup;
+cleanup();
 
 
 /***/ }),
