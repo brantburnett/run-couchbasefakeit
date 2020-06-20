@@ -8,8 +8,8 @@ inputs:
   couchbase-version:
     description: 'Docker tag for the version of CouchbaseFakeIt, i.e. "enterprise-6.5.0"'
     required: true
-  couchbase-repository:
-    description: 'Repository for retrieving Couchbase, defaults to "btburnett3/couchbasefakeit"'
+  couchbase-registry:
+    description: 'Docker registry for retrieving Couchbase, defaults to "btburnett3/couchbasefakeit"'
     required: false
     default: 'btburnett3/couchbasefakeit'
 runs:
