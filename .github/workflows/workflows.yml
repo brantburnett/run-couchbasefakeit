@@ -17,6 +17,7 @@ jobs:
         uses: ./
         with:
           couchbase-version: enterprise-6.5.0
+          couchbase-configuration: example
       - name: Run SDK Doctor
         uses: docker://couchbase/sdk-doctor
         with:

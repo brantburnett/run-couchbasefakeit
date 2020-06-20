@@ -1337,10 +1337,7 @@ function cleanup() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             core.info('Stopping Couchbase...');
-            yield exec.exec('docker', [
-                'stop',
-                'couchbasefakeit'
-            ]);
+            yield exec.exec('docker', ['stop', 'couchbasefakeit']);
         }
         catch (e) {
             core.setFailed(e.message);

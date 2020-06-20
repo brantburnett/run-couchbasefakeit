@@ -1344,17 +1344,34 @@ function run() {
         try {
             const registry = core.getInput('couchbase-registry');
             const tag = core.getInput('couchbase-version');
+            const configDir = core.getInput('couchbase-configuration');
+            const userName = core.getInput('couchbase-username');
+            const password = core.getInput('couchbase-password');
+            const services = core.getInput('couchbase-services');
+            core.setSecret(password);
             const image = `${registry}:${tag}`;
             core.info(`Launching Couchbase using ${image}`);
             const nodestatusDir = yield fs.promises.mkdtemp('/tmp/');
             const returnCode = yield exec.exec('docker', [
                 'run',
-                '-d', '--rm',
-                '--name', 'couchbasefakeit',
-                '-p', '8091-8096:8091-8096',
-                '-p', '11210:11210',
-                '-v', `${process.cwd()}/example:/startup`,
-                '-v', `${nodestatusDir}:/nodestatus`,
+                '-d',
+                '--rm',
+                '--name',
+                'couchbasefakeit',
+                '-p',
+                '8091-8096:8091-8096',
+                '-p',
+                '11210:11210',
+                '-e',
+                `CB_USERNAME=${userName}`,
+                '-e',
+                `CB_PASSWORD=${password}`,
+                '-e',
+                `CB_SERVICES=${services}`,
+                '-v',
+                `${process.cwd()}/${configDir}:/startup`,
+                '-v',
+                `${nodestatusDir}:/nodestatus`,
                 image
             ]);
             if (returnCode !== 0) {
@@ -1377,10 +1394,7 @@ function run() {
                 core.info('CouchbaseFakeIt initialized.');
             }
             // Print logs
-            yield exec.exec('docker', [
-                'logs',
-                'couchbasefakeit'
-            ]);
+            yield exec.exec('docker', ['logs', 'couchbasefakeit']);
         }
         catch (e) {
             core.setFailed(e.message);

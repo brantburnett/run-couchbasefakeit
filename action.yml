@@ -12,6 +12,21 @@ inputs:
     description: 'Docker registry for retrieving Couchbase, defaults to "btburnett3/couchbasefakeit"'
     required: false
     default: 'btburnett3/couchbasefakeit'
+  couchbase-configuration:
+    description: 'Relative path to the CouchbaseFakeIt configuration'
+    required: true
+  couchbase-username:
+    description: 'Couchbase username, defaults to "Administrator"'
+    required: false
+    default: 'Administrator'
+  couchbase-password:
+    description: 'Couchbase password, defaults to "password"'
+    required: false
+    default: 'password'
+  couchbase-services:
+    description: 'Couchbase services to run, defaults to ""'
+    required: false
+    default: 'kv,n1ql,index,fts'
 runs:
   using: 'node12'
   main: 'dist/index.js'

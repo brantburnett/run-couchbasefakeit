@@ -12,6 +12,11 @@ export async function run() {
   try {
     const registry: string = core.getInput('couchbase-registry');
     const tag: string = core.getInput('couchbase-version');
+    const configDir = core.getInput('couchbase-configuration');
+    const userName = core.getInput('couchbase-username');
+    const password = core.getInput('couchbase-password');
+    const services = core.getInput('couchbase-services');
+    core.setSecret(password);
 
     const image: string = `${registry}:${tag}`;
 
@@ -21,12 +26,24 @@ export async function run() {
 
     const returnCode = await exec.exec('docker', [
       'run',
-      '-d', '--rm',
-      '--name', 'couchbasefakeit',
-      '-p', '8091-8096:8091-8096',
-      '-p', '11210:11210',
-      '-v', `${process.cwd()}/example:/startup`,
-      '-v', `${nodestatusDir}:/nodestatus`,
+      '-d',
+      '--rm',
+      '--name',
+      'couchbasefakeit',
+      '-p',
+      '8091-8096:8091-8096',
+      '-p',
+      '11210:11210',
+      '-e',
+      `CB_USERNAME=${userName}`,
+      '-e',
+      `CB_PASSWORD=${password}`,
+      '-e',
+      `CB_SERVICES=${services}`,
+      '-v',
+      `${process.cwd()}/${configDir}:/startup`,
+      '-v',
+      `${nodestatusDir}:/nodestatus`,
       image
     ]);
 
@@ -38,7 +55,7 @@ export async function run() {
     core.info('Waiting for initialization...');
 
     let initialized = false;
-    for (let attempt=0; attempt<60; attempt++) {
+    for (let attempt = 0; attempt < 60; attempt++) {
       await delay(1000);
 
       if (fs.existsSync(`${nodestatusDir}/initialized`)) {
@@ -54,10 +71,7 @@ export async function run() {
     }
 
     // Print logs
-    await exec.exec('docker', [
-      'logs',
-      'couchbasefakeit'
-    ]);
+    await exec.exec('docker', ['logs', 'couchbasefakeit']);
   } catch (e) {
     core.setFailed(e.message);
   }
