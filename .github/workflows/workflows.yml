@@ -18,11 +18,10 @@ jobs:
         with:
           couchbase-version: enterprise-6.5.0
           couchbase-configuration: example
+      - name: Get host IP
+        run: echo ::set-env name=HOST_IP::$(hostname -i)
       - name: Run SDK Doctor
         uses: docker://couchbase/sdk-doctor
         with:
           entrypoint: /sdk-doctor/sdk-doctor-linux
-          args: diagnose couchbase://host.docker.internal/test
-
-
-
+          args: diagnose couchbase://${{env.HOST_IP}}/test -u Administrator -p password
