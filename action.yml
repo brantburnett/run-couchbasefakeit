@@ -1,0 +1,17 @@
+name: 'Run CouchbaseFakeIt'
+description: 'Runs a pre-initialized Couchbase container based on definition files in your repository'
+author: 'Brant Burnett'
+branding:
+  icon: play
+  color: green
+inputs:
+  couchbase-version:
+    description: 'Docker tag for the version of CouchbaseFakeIt, i.e. "enterprise-6.5.0"'
+    required: true
+  couchbase-repository:
+    description: 'Repository for retrieving Couchbase, defaults to "btburnett3/couchbasefakeit"'
+    required: false
+    default: 'btburnett3/couchbasefakeit'
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
