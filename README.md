@@ -29,7 +29,11 @@ jobs:
           couchbase-username: Administrator
           couchbase-password: password
       - name: Run Tests
-        run: 'npm run test' # Note that Couchbase will be available at couchbase://localhost
+        run: 'npm run test' # Couchbase will be available at couchbase://localhost
+      - name: Run Container
+        uses: docker://some/container
+        with:
+          args: couchbase://${{ env.couchbase_host }} # For a Docker container, you can use the couchbase_host variable
 ```
 
 ## Configuration folder

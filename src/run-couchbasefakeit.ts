@@ -68,6 +68,19 @@ export async function run() {
       core.setFailed('Timeout during initialization');
     } else {
       core.info('CouchbaseFakeIt initialized.');
+
+      let ip = '';
+      // Get the hostname
+      await exec.exec('hostname', ['-i'], {
+        listeners: {
+          stdout: (data: Buffer) => {
+            ip += data.toString();
+          }
+        }
+      });
+
+      ip = ip.trim();
+      core.exportVariable('couchbase_host', ip);
     }
 
     // Print logs

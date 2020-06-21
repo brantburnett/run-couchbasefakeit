@@ -1392,6 +1392,17 @@ function run() {
             }
             else {
                 core.info('CouchbaseFakeIt initialized.');
+                let ip = '';
+                // Get the hostname
+                yield exec.exec('hostname', ['-i'], {
+                    listeners: {
+                        stdout: (data) => {
+                            ip += data.toString();
+                        }
+                    }
+                });
+                ip = ip.trim();
+                core.exportVariable('couchbase_host', ip);
             }
             // Print logs
             yield exec.exec('docker', ['logs', 'couchbasefakeit']);
