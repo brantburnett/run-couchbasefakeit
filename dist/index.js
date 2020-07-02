@@ -1363,6 +1363,8 @@ function run() {
                 '-p',
                 '11210:11210',
                 '-e',
+                'CB_STOPONERROR=1',
+                '-e',
                 `CB_USERNAME=${userName}`,
                 '-e',
                 `CB_PASSWORD=${password}`,
@@ -1386,9 +1388,18 @@ function run() {
                     initialized = true;
                     break;
                 }
+                if (fs.existsSync(`${nodestatusDir}/errors`)) {
+                    // Wait for all errors
+                    yield exec.exec('docker', ['wait', 'couchbasefakeit']);
+                    // Print logs
+                    yield exec.exec('docker', ['logs', 'couchbasefakeit']);
+                    // Short circuit
+                    core.setFailed('Errors initializing CouchbaseFakeIt.');
+                    return;
+                }
             }
             if (!initialized) {
-                core.setFailed('Timeout during initialization');
+                core.setFailed('Timeout during CouchbaseFakeIt initialization.');
             }
             else {
                 core.info('CouchbaseFakeIt initialized.');
