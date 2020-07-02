@@ -27,7 +27,6 @@ export async function run() {
     const returnCode = await exec.exec('docker', [
       'run',
       '-d',
-      '--rm',
       '--name',
       'couchbasefakeit',
       '-p',

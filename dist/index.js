@@ -1355,7 +1355,6 @@ function run() {
             const returnCode = yield exec.exec('docker', [
                 'run',
                 '-d',
-                '--rm',
                 '--name',
                 'couchbasefakeit',
                 '-p',

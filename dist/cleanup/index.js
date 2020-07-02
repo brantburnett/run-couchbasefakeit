@@ -1338,6 +1338,7 @@ function cleanup() {
         try {
             core.info('Stopping Couchbase...');
             yield exec.exec('docker', ['stop', 'couchbasefakeit']);
+            yield exec.exec('docker', ['rm', 'couchbasefakeit']);
         }
         catch (e) {
             core.setFailed(e.message);

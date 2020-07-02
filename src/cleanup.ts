@@ -6,6 +6,7 @@ export async function cleanup() {
     core.info('Stopping Couchbase...');
 
     await exec.exec('docker', ['stop', 'couchbasefakeit']);
+    await exec.exec('docker', ['rm', 'couchbasefakeit']);
   } catch (e) {
     core.setFailed(e.message);
   }
